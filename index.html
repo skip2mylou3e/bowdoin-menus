@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Bowdoin Dining</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-card: #222222;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #ffffff;
+            --border: #333333;
+            --thorne-color: #4a90d9;
+            --moulton-color: #d97b4a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 16px;
+            padding-bottom: 100px;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            padding: 16px 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .date-display {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+        }
+
+        .date-nav button {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .date-nav button:hover {
+            background: var(--bg-secondary);
+        }
+
+        .date-nav button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .current-date {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .today-btn {
+            font-size: 12px;
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 16px;
+            cursor: pointer;
+        }
+
+        .today-btn:hover {
+            background: var(--bg-card);
+        }
+
+        .meal-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .meal-tab {
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .meal-tab.active {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+        }
+
+        .meal-tab:hover:not(.active) {
+            background: var(--bg-secondary);
+        }
+
+        .hall-section {
+            margin-bottom: 24px;
+        }
+
+        .hall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            cursor: pointer;
+        }
+
+        .hall-name {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hall-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .hall-indicator.thorne {
+            background: var(--thorne-color);
+        }
+
+        .hall-indicator.moulton {
+            background: var(--moulton-color);
+        }
+
+        .hall-hours {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .hall-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .hall-status.open {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+        }
+
+        .hall-status.closed {
+            background: rgba(248, 113, 113, 0.15);
+            color: #f87171;
+        }
+
+        .menu-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .course-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .course-section:last-child {
+            border-bottom: none;
+        }
+
+        .course-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-item {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top-color: var(--text-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-menu {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-menu-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .hours-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .hours-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hours-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .hours-hall {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hours-hall-name {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hours-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding-left: 16px;
+        }
+
+        .error-message {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            color: #f87171;
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .refresh-btn.spinning svg {
+            animation: spin 1s linear infinite;
+        }
+
+        .last-updated {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 16px 0;
+        }
+
+        @media (max-width: 380px) {
+            h1 {
+                font-size: 20px;
+            }
+            .meal-tab {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Bowdoin Dining</h1>
+                <div class="date-display" id="dateDisplay"></div>
+            </div>
+        </header>
+
+        <div class="date-nav">
+            <button id="prevDay" aria-label="Previous day">&larr;</button>
+            <div class="current-date" id="currentDate"></div>
+            <button id="nextDay" aria-label="Next day">&rarr;</button>
+            <button class="today-btn" id="todayBtn">Today</button>
+        </div>
+
+        <div class="meal-tabs" id="mealTabs">
+            <button class="meal-tab active" data-meal="breakfast">Breakfast</button>
+            <button class="meal-tab" data-meal="lunch">Lunch</button>
+            <button class="meal-tab" data-meal="dinner">Dinner</button>
+        </div>
+
+        <div id="menuContainer">
+            <!-- Menu content will be inserted here -->
+        </div>
+
+        <div class="hours-section">
+            <div class="hours-title">
+                <span>&#128337;</span> Dining Hours
+            </div>
+            <div class="hours-grid">
+                <div class="hours-hall">
+                    <div class="hours-hall-name">
+                        <span class="hall-indicator thorne"></span>
+                        Thorne Hall
+                    </div>
+                    <div id="thorneHours"></div>
+                </div>
+                <div class="hours-hall">
+                    <div class="hours-hall-name">
+                        <span class="hall-indicator moulton"></span>
+                        Moulton Union
+                    </div>
+                    <div id="moultonHours"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="last-updated" id="lastUpdated"></div>
+    </div>
+
+    <button class="refresh-btn" id="refreshBtn" aria-label="Refresh menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+    </button>
+
+    <script>
+        // Dining hours data
+        const DINING_HOURS = {
+            thorne: {
+                weekday: {
+                    breakfast: { start: '8:00 AM', end: '10:00 AM' },
+                    lunch: { start: '11:30 AM', end: '2:00 PM' },
+                    dinner: { start: '5:00 PM', end: '8:00 PM' }
+                },
+                weekend: {
+                    brunch: { start: '11:00 AM', end: '1:30 PM' },
+                    dinner: { start: '5:00 PM', end: '7:30 PM' }
+                },
+                lateNight: { start: '10:00 PM', end: '1:00 AM', days: ['Thu', 'Fri', 'Sat'] }
+            },
+            moulton: {
+                weekday: {
+                    breakfast: { start: '7:00 AM', end: '10:00 AM' },
+                    lunch: { start: '11:00 AM', end: '2:00 PM' },
+                    dinner: { start: '5:00 PM', end: '7:00 PM' }
+                },
+                weekend: {
+                    breakfast: { start: '8:00 AM', end: '11:00 AM' },
+                    brunch: { start: '11:00 AM', end: '12:30 PM' },
+                    dinner: { start: '5:00 PM', end: '7:00 PM' }
+                }
+            }
+        };
+
+        const LOCATION_IDS = {
+            moulton: 48,
+            thorne: 49
+        };
+
+        // State
+        let currentDate = new Date();
+        let currentMeal = 'breakfast';
+        let menuCache = {};
+
+        // DOM Elements
+        const menuContainer = document.getElementById('menuContainer');
+        const mealTabs = document.getElementById('mealTabs');
+        const currentDateEl = document.getElementById('currentDate');
+        const dateDisplayEl = document.getElementById('dateDisplay');
+        const prevDayBtn = document.getElementById('prevDay');
+        const nextDayBtn = document.getElementById('nextDay');
+        const todayBtn = document.getElementById('todayBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const lastUpdatedEl = document.getElementById('lastUpdated');
+
+        // Initialize
+        function init() {
+            updateDateDisplay();
+            renderHours();
+            loadMenu();
+            setupEventListeners();
+            autoSelectMeal();
+        }
+
+        function setupEventListeners() {
+            mealTabs.addEventListener('click', (e) => {
+                if (e.target.classList.contains('meal-tab')) {
+                    document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentMeal = e.target.dataset.meal;
+                    loadMenu();
+                }
+            });
+
+            prevDayBtn.addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() - 1);
+                updateDateDisplay();
+                updateMealTabs();
+                loadMenu();
+            });
+
+            nextDayBtn.addEventListener('click', () => {
+                currentDate.setDate(currentDate.getDate() + 1);
+                updateDateDisplay();
+                updateMealTabs();
+                loadMenu();
+            });
+
+            todayBtn.addEventListener('click', () => {
+                currentDate = new Date();
+                updateDateDisplay();
+                autoSelectMeal();
+                loadMenu();
+            });
+
+            refreshBtn.addEventListener('click', () => {
+                menuCache = {};
+                loadMenu(true);
+            });
+        }
+
+        function autoSelectMeal() {
+            const now = new Date();
+            const hour = now.getHours();
+            const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+
+            let meal = 'dinner';
+            if (hour < 10) {
+                meal = isWeekend ? 'brunch' : 'breakfast';
+            } else if (hour < 14) {
+                meal = isWeekend ? 'brunch' : 'lunch';
+            } else if (hour < 20) {
+                meal = 'dinner';
+            }
+
+            currentMeal = meal;
+            updateMealTabs();
+        }
+
+        function updateMealTabs() {
+            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+            const tabs = mealTabs.querySelectorAll('.meal-tab');
+
+            // Update tabs for weekend/weekday
+            mealTabs.innerHTML = '';
+            const meals = isWeekend
+                ? ['brunch', 'dinner']
+                : ['breakfast', 'lunch', 'dinner'];
+
+            meals.forEach(meal => {
+                const tab = document.createElement('button');
+                tab.className = 'meal-tab' + (meal === currentMeal ? ' active' : '');
+                tab.dataset.meal = meal;
+                tab.textContent = meal.charAt(0).toUpperCase() + meal.slice(1);
+                mealTabs.appendChild(tab);
+            });
+
+            // Adjust current meal if not available
+            if (!meals.includes(currentMeal)) {
+                currentMeal = meals[0];
+                mealTabs.querySelector('.meal-tab').classList.add('active');
+            }
+        }
+
+        function updateDateDisplay() {
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            currentDateEl.textContent = currentDate.toLocaleDateString('en-US', options);
+
+            const today = new Date();
+            const isToday = currentDate.toDateString() === today.toDateString();
+            dateDisplayEl.textContent = isToday ? 'Today' : '';
+
+            // Update navigation buttons
+            const maxFuture = new Date();
+            maxFuture.setDate(maxFuture.getDate() + 7);
+            nextDayBtn.disabled = currentDate >= maxFuture;
+
+            const minPast = new Date();
+            minPast.setDate(minPast.getDate() - 7);
+            prevDayBtn.disabled = currentDate <= minPast;
+
+            updateMealTabs();
+        }
+
+        function formatDateForAPI(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+
+        function getCacheKey(date, meal, location) {
+            return `${formatDateForAPI(date)}-${meal}-${location}`;
+        }
+
+        async function fetchMenu(date, meal, locationId) {
+            const dateStr = formatDateForAPI(date);
+
+            // Map meal names
+            let mealName = meal;
+            if (meal === 'brunch') mealName = 'lunch';
+
+            try {
+                const response = await fetch('/api/menu', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        unit: locationId,
+                        date: dateStr,
+                        meal: mealName
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch menu');
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching menu:', error);
+                return null;
+            }
+        }
+
+        async function loadMenu(forceRefresh = false) {
+            const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+
+            menuContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
+
+            if (forceRefresh) {
+                refreshBtn.classList.add('spinning');
+            }
+
+            try {
+                const [thorneMenu, moultonMenu] = await Promise.all([
+                    loadMenuForHall('thorne', LOCATION_IDS.thorne, forceRefresh),
+                    loadMenuForHall('moulton', LOCATION_IDS.moulton, forceRefresh)
+                ]);
+
+                renderMenus(thorneMenu, moultonMenu, isWeekend);
+                lastUpdatedEl.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+            } catch (error) {
+                menuContainer.innerHTML = `
+                    <div class="error-message">
+                        Unable to load menu. Please try again.
+                    </div>
+                `;
+            } finally {
+                refreshBtn.classList.remove('spinning');
+            }
+        }
+
+        async function loadMenuForHall(hallName, locationId, forceRefresh) {
+            const cacheKey = getCacheKey(currentDate, currentMeal, hallName);
+
+            if (!forceRefresh && menuCache[cacheKey]) {
+                return menuCache[cacheKey];
+            }
+
+            const menu = await fetchMenu(currentDate, currentMeal, locationId);
+            if (menu) {
+                menuCache[cacheKey] = menu;
+            }
+            return menu;
+        }
+
+        function renderMenus(thorneMenu, moultonMenu, isWeekend) {
+            const thorneHours = getHallHours('thorne', isWeekend);
+            const moultonHours = getHallHours('moulton', isWeekend);
+
+            menuContainer.innerHTML = `
+                ${renderHallSection('Thorne Hall', 'thorne', thorneMenu, thorneHours)}
+                ${renderHallSection('Moulton Union', 'moulton', moultonMenu, moultonHours)}
+            `;
+        }
+
+        function getHallHours(hall, isWeekend) {
+            const schedule = isWeekend ? DINING_HOURS[hall].weekend : DINING_HOURS[hall].weekday;
+            const mealKey = currentMeal === 'brunch' ? 'brunch' : currentMeal;
+            return schedule[mealKey] || null;
+        }
+
+        function isHallOpen(hours) {
+            if (!hours) return false;
+
+            const now = new Date();
+            const [startHour, startMin] = parseTime(hours.start);
+            const [endHour, endMin] = parseTime(hours.end);
+
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const startMins = startHour * 60 + startMin;
+            const endMins = endHour * 60 + endMin;
+
+            const isToday = currentDate.toDateString() === now.toDateString();
+            if (!isToday) return false;
+
+            return currentMins >= startMins && currentMins <= endMins;
+        }
+
+        function parseTime(timeStr) {
+            const [time, period] = timeStr.split(' ');
+            let [hour, min] = time.split(':').map(Number);
+            if (period === 'PM' && hour !== 12) hour += 12;
+            if (period === 'AM' && hour === 12) hour = 0;
+            return [hour, min];
+        }
+
+        function renderHallSection(name, hallId, menu, hours) {
+            const isOpen = isHallOpen(hours);
+            const hoursText = hours ? `${hours.start} - ${hours.end}` : 'Closed';
+
+            return `
+                <div class="hall-section">
+                    <div class="hall-header">
+                        <div>
+                            <div class="hall-name">
+                                <span class="hall-indicator ${hallId}"></span>
+                                ${name}
+                            </div>
+                            <div class="hall-hours">${hoursText}</div>
+                        </div>
+                        <span class="hall-status ${isOpen ? 'open' : 'closed'}">
+                            ${isOpen ? 'Open' : 'Closed'}
+                        </span>
+                    </div>
+                    <div class="menu-content">
+                        ${menu && menu.courses && menu.courses.length > 0
+                            ? renderCourses(menu.courses)
+                            : renderNoMenu()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCourses(courses) {
+            return courses.map(course => `
+                <div class="course-section">
+                    <div class="course-name">${course.name}</div>
+                    <div class="menu-items">
+                        ${course.items.map(item => `
+                            <div class="menu-item">${item}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderNoMenu() {
+            return `
+                <div class="no-menu">
+                    <div class="no-menu-icon">&#127860;</div>
+                    <div>No menu available for this meal</div>
+                </div>
+            `;
+        }
+
+        function renderHours() {
+            const thorneHoursEl = document.getElementById('thorneHours');
+            const moultonHoursEl = document.getElementById('moultonHours');
+
+            thorneHoursEl.innerHTML = `
+                <div class="hours-detail"><span>Weekday Breakfast</span><span>8:00 - 10:00 AM</span></div>
+                <div class="hours-detail"><span>Weekday Lunch</span><span>11:30 AM - 2:00 PM</span></div>
+                <div class="hours-detail"><span>Weekday Dinner</span><span>5:00 - 8:00 PM</span></div>
+                <div class="hours-detail"><span>Weekend Brunch</span><span>11:00 AM - 1:30 PM</span></div>
+                <div class="hours-detail"><span>Weekend Dinner</span><span>5:00 - 7:30 PM</span></div>
+                <div class="hours-detail"><span>Super Snack (Thu-Sat)</span><span>10:00 PM - 1:00 AM</span></div>
+            `;
+
+            moultonHoursEl.innerHTML = `
+                <div class="hours-detail"><span>Weekday Breakfast</span><span>7:00 - 10:00 AM</span></div>
+                <div class="hours-detail"><span>Weekday Lunch</span><span>11:00 AM - 2:00 PM</span></div>
+                <div class="hours-detail"><span>Weekday Dinner</span><span>5:00 - 7:00 PM</span></div>
+                <div class="hours-detail"><span>Weekend Breakfast</span><span>8:00 - 11:00 AM</span></div>
+                <div class="hours-detail"><span>Weekend Brunch</span><span>11:00 AM - 12:30 PM</span></div>
+                <div class="hours-detail"><span>Weekend Dinner</span><span>5:00 - 7:00 PM</span></div>
+            `;
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "bowdoin-menu",
+  "version": "1.0.0",
+  "description": "Mobile-friendly web app for Bowdoin College dining menus",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "bowdoin",
+    "dining",
+    "menu",
+    "college"
+  ],
+  "author": "",
+  "license": "MIT"
+}
